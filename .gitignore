@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+*.xml
 
 # Precompiled Headers
 *.gch
@@ -39,3 +40,11 @@
 
 # debug information files
 *.dwo
+
+eigen-3.4.0
+mnist-datasets
+practice.cpp
+build
+include/eigen-3.4.0
+settings.json
+.gitignore
