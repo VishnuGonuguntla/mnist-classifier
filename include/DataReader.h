@@ -3,13 +3,17 @@
 #include <string>
 #include <Eigen/Dense>
 #include <vector>
+#include <map>
 
 using namespace std;
 using Eigen::MatrixXd, Eigen::MatrixXi;
+
 class DataReader {
     public:
-    DataReader (string train_data_add, string test_data_add);
-    vector<int> src_data_reading(MatrixXd &tr_i, MatrixXd &tr_l, string image, string label, MatrixXi &test_true, string type);
+    DataReader (map<string,string> config_data);
+    vector<int> deCompress(MatrixXd& image, MatrixXi& label, string type);
     private:
+    string train_i, train_l, test_i, test_l;
+
     int bigToEndian(int i);
 };

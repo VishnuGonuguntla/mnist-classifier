@@ -19,7 +19,7 @@ find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 # FetchContent_MakeAvailable(eigen)
 
 # Add the executable
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/helper.cpp src/DataReader.cpp src/NeuralNet.cpp)
 
 # Link Eigen to the project
 target_link_libraries(main Eigen3::Eigen)

@@ -1,19 +1,20 @@
 
 #include <iostream>
-#include "NeuralNet.h"
+#include "../include/NeuralNet.h"
 
 using namespace std;
 
-NN::NN (int source, int test, int n, int b,int k, float eta) {
+NN::NN (int source, int test, int n, map<string,string> config) {
         train_count = source;
         test_count = test;
         num_classes = k;
-        batch_count = b;
+        batch_count = stoi(config["batch_size"]);
         total_count = n;
-        learn_rate = eta;
+        learn_rate = stof(config["learning_rate"]);
+        
     }
 
-void NN::training(MatrixXd& tr_i,MatrixXd& tr_l, MatrixXd& w1,MatrixXd& w2,int num_epochs,int batch, int hidden_size,float eta) {
+void NN::training(MatrixXd& tr_i,MatrixXd& tr_l, MatrixXd& w1,MatrixXd& w2) {
     cout<< "training Time: " ;
     auto start= chrono::steady_clock::now();
     MatrixXd s_i(train_count,total_count),a1(batch,hidden_size),a1u=MatrixXd::Ones(batch,hidden_size+1),a2(batch,num_classes),h1(batch,hidden_size),h2(batch,num_classes),h1b(batch,hidden_size+1),h2b(batch,1),h1bu(batch,hidden_size);
@@ -49,7 +50,7 @@ void NN::training(MatrixXd& tr_i,MatrixXd& tr_l, MatrixXd& w1,MatrixXd& w2,int n
     auto end=chrono::steady_clock::now();
     cout << std::chrono::duration_cast<std::chrono::seconds>(end-start).count() << "\n";
 }
-    void NN::testing(MatrixXd& w1, MatrixXd& w2, MatrixXd& te_i, MatrixXd& te_l, MatrixXi& true_label,int num_epochs,int batch, int hidden_size,int eta) {
+    void NN::testing(MatrixXd& w1, MatrixXd& w2, MatrixXd& te_i, MatrixXd& te_l, MatrixXi& true_label) {
     auto start= chrono::steady_clock::now();
     cout <<"testing time: ";
     MatrixXd h1(test_count,hidden_size),h2(test_count,num_classes),a1u=MatrixXd::Ones(test_count,hidden_size+1),a1(test_count,hidden_size),a2(test_count,num_classes),input=MatrixXd::Ones(test_count,total_count+1);

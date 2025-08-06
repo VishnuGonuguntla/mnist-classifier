@@ -1,6 +1,6 @@
-#include "helper.h"
 #include <iostream>
 #include <fstream>
+#include "../include/helper.h"
 
 using namespace std;
 
@@ -28,6 +28,7 @@ map<string,string> Helper::parse(string config_file) {
   ifstream file(config_file);
   string line;
   if (!file.is_open()) {
+    
     cout << "Error opening file " << config_file << endl;
     return parse_data;
   }

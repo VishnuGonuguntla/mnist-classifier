@@ -1,17 +1,26 @@
-#include "DataReader.h"
+#include <fstream>
+#include <Eigen/Dense>
+#include "../include/DataReader.h"
+
 using namespace std;
+using Eigen::MatrixXd, Eigen::MatrixXi;
 
-DataReader::DataReader (string train_data_add, string test_data_add) {
-
+DataReader::DataReader (map<string,string> config_data) {
+  train_i = config_data["rel_path_train_images"];
+  train_l = config_data["rel_path_train_labels"];
+  test_i = config_data["rel_path_test_images"];
+  test_l = config_data["rel_path_test_labels"];
 }
 
-vector<int> DataReader::src_data_reading(MatrixXd& tr_i, MatrixXd& tr_l, string image, string label,MatrixXi& test_true,string type) {
-    ifstream file_image(image,ios::binary);
+vector<int> DataReader::deCompress(MatrixXd& image, MatrixXi& label, string type) {
+    ifstream file_image;
+    if (type == "train") { file_image.open(train_i,ios::binary); } else {file_image.open(test_i,ios::binary);}
+    int magic_number = 0;
     int number_of_images = 0;
     int number_of_rows = 0;
     int number_of_columns = 0;
+    // Image Data Reading
     if (file_image.is_open()) {
-      int magic_number = 0;
       file_image.read((char*)&magic_number,sizeof(magic_number));
       magic_number = bigToEndian(magic_number);
       file_image.read((char*)&number_of_images,sizeof(number_of_images));
@@ -20,34 +29,48 @@ vector<int> DataReader::src_data_reading(MatrixXd& tr_i, MatrixXd& tr_l, string 
       number_of_rows = bigToEndian(number_of_rows);
       file_image.read((char*)&number_of_columns,sizeof(number_of_columns));
       number_of_columns = bigToEndian(number_of_columns);
+      number_of_rows = 28;
+      number_of_columns = 28;
+      // MatrixXd image(number_of_images, 28*28);
       for (int i = 0; i < number_of_images; i++) {
-        for (int j = 0; j < number_of_rows; j++) {
-          for (int k = 0; k < number_of_columns; k++) {
+        for (int j = 0; j < 28; j++) {
+          for (int k = 0; k < 28; k++) {
             unsigned char value = 0;
             file_image.read((char*)&value,sizeof(value));
-            tr_i(i,number_of_rows*j+k) = value/255.0f;
+            image(i, k + number_of_rows*j) = value/255.0f;
           }
         }
       }
       file_image.close();
+      // ofstream image_out;
+      // if (type == "train") { image_out.open("../mnist-datasets/train_image.txt",ios::binary); } else {image_out.open("../mnist-datasets/test_image.txt",ios::binary);}
+      // image_out << image << endl;
+      // image_out.close();
+
     }
-    ifstream file_label(label,ios::binary);
+    // Label Data Reading:
+    ifstream file_label;
+    cout << train_l << endl; cout << test_l << endl;
+    if (type == "train") { file_label.open(train_l,ios::binary); } else {file_label.open(test_l,ios::binary);}
     if (file_label.is_open()) {
-      int magic_number = 0;
-      int number_of_images = 0;
       file_label.read((char*)&magic_number,sizeof(magic_number));
       magic_number = bigToEndian(magic_number);
       file_label.read((char*)&number_of_images,sizeof(number_of_images));
       number_of_images = bigToEndian(number_of_images);
+      // MatrixXi label = MatrixXi::Zero(number_of_images, 10);
       for (int i = 0; i < number_of_images; i++) {
         unsigned char value = 0;
         file_label.read((char*)&value,sizeof(value));
-        tr_l(i,value) = 1;
-        if (type == "test") test_true(i) = value;
+        label(i, value) = 1;
       }
       file_label.close();
-    }
-    return {number_of_images, number_of_rows*number_of_columns};
+      // ofstream label_out;
+      // if (type == "train") { label_out.open("../mnist-datasets/train_label.txt",ios::binary); } else { label_out.open("../mnist-datasets/test_label.txt",ios::binary);}
+      // label_out<<label;
+      // label_out.close();
+    } else {cout <<"Not open" << endl;}
+
+    return {number_of_images, number_of_rows*number_of_columns, 10};
 }
 int DataReader::bigToEndian (int i) {
     unsigned char c1, c2, c3, c4;
