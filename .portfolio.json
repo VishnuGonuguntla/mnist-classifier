@@ -1,0 +1,24 @@
+{ "include": true,  "title": "...", "description": "...", "tags": ["AI"] }
+{ "include": false }   ← hides the repo from portfolio entirely
+```
+
+If the file **doesn't exist**, the repo shows up by default (opt-out model). `main.js` now fetches this file from every repo in parallel before rendering cards. Tags appear as styled chips on each card.
+
+---
+
+**CI/CD — where each file goes:**
+
+| File | Goes into |
+|---|---|
+| `build.yml` | `.github/workflows/` of **every individual repo** |
+| `portfolio-rebuild.yml` | `.github/workflows/` of **`VishnuGonuguntla.github.io`** only |
+
+**The pipeline flow:**
+```
+push to any repo
+  └─ lint .portfolio.json (Python validator)
+  └─ detect C++ files?
+       └─ yes → install Emscripten → emmake make → commit /dist
+  └─ all passed?
+       └─ curl dispatch → github.io repo
+            └─ portfolio-rebuild.yml → deploy Pages

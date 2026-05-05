@@ -47,4 +47,4 @@ practice.cpp
 build
 include/eigen-3.4.0
 settings.json
-.gitignore
+data/
