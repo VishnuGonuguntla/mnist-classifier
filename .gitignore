@@ -41,10 +41,11 @@
 # debug information files
 *.dwo
 
-eigen-3.4.0
-mnist-datasets
-practice.cpp
+mnist-datasets/
 build
-include/eigen-3.4.0
 settings.json
 data/
+obj/
+bin/
+run.sh
+results/

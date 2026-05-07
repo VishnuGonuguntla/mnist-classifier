@@ -1,64 +1,98 @@
-TARGET = train
-BUILD_DIR = build/
-SRC_DIR = src
-CXX ?= g++
-LDFLAGS = -lstdc++fs
-LIBS = 
-DEBUG ?= false
+# ==============================================================================
+# Makefile for MNIST Classification Project
+# ==============================================================================
 
-ifeq ($(CXX), g++)
-	TEST_FLAGS = 
-else
-	TEST_FLAGS = -fp-model=precise
-endif
+CXX       := g++
+CXXFLAGS  := -std=c++20 -Wall -Wextra -O2
+EIGEN_DIR := $(HOME)/packages/eigen
+INCLUDES  := -I$(EIGEN_DIR) -Isrc
 
-EXTRA_FLAGS := 
-ifeq ($(DEBUG), true)
-	EXTRA_FLAGS := $(EXTRA_FLAGS) -DDEBUG
-endif
+# ------------------------------------------------------------------------------
+# Directories
+# ------------------------------------------------------------------------------
+SRC_DIR := src
+OBJ_DIR := obj
+BIN_DIR := bin
 
-ifeq ($(CXX), g++)
-	FLAGS = -std=c++0x -Wall -Winline -Wshadow -W -O3 -fopenmp -march=native
-else
-	FLAGS = -std=c++0x -Wall -Winline -Wshadow -W -O3 -qopenmp -xHOST -Wno-tautological-constant-compare
-endif
+# ------------------------------------------------------------------------------
+# Shared object files (used by multiple executables)
+# ------------------------------------------------------------------------------
+DATAREADER_OBJ := $(OBJ_DIR)/DataReader.o
+HELPER_OBJ     := $(OBJ_DIR)/helper.o
+NEURALNET_OBJ  := $(OBJ_DIR)/NeuralNet.o
+MNIST_OBJ      := $(OBJ_DIR)/mnist.o
 
-CXXFLAGS = $(FLAGS) $(EXTRA_FLAGS)
-CXXFLAGS += -I./../../packages/eigen
--include $(OBJS:.o=.d)
+# Compile each shared source
+$(OBJ_DIR)/DataReader.o: $(SRC_DIR)/DataReader.cpp $(SRC_DIR)/DataReader.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-SRCS = $(shell find $(SRC_DIR) -type f -name '*.cpp')
+$(OBJ_DIR)/helper.o: $(SRC_DIR)/helper.cpp $(SRC_DIR)/helper.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-INCLUDES = $(shell find $(SRC_DIR) -type f -name '*.h')
+$(OBJ_DIR)/NeuralNet.o: $(SRC_DIR)/NeuralNet.cpp $(SRC_DIR)/NeuralNet.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/lib/%.o,$(SRCS))
+$(OBJ_DIR)/mnist.o: $(SRC_DIR)/mnist.cpp $(SRC_DIR)/mnist.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-all: $(OBJS)
+# ==============================================================================
+# Executables
+# ==============================================================================
 
-$(BUILD_DIR)/lib/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+.PHONY: all clean dirs
 
-$(BUILD_DIR)/%: $(SRC_DIR)/%.cpp $(OBJS)
-	@mkdir -p $(@D)
-	$()
+all: dirs \
+	$(BIN_DIR)/read_dataset_images \
+	$(BIN_DIR)/read_dataset_labels \
+	$(BIN_DIR)/mnist
 
-# all: clean
+# Create output directories if they don't exist
+dirs:
+	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 
-# test:
-# 	:
+# ------------------------------------------------------------------------------
+# read_dataset_images
+# Needs DataReader + helper for parse_image()
+# ------------------------------------------------------------------------------
+$(OBJ_DIR)/read_dataset_images.o: $(SRC_DIR)/read_dataset_images.cpp $(SRC_DIR)/DataReader.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-# perf: 
-# 	:
+$(BIN_DIR)/read_dataset_images: $(OBJ_DIR)/read_dataset_images.o $(DATAREADER_OBJ) $(HELPER_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "[Linked]   $@"
 
-# clean:
-# 	$(info ==> CLEAN)
-# 	@rm -rf $(BUILD_DIR)
+# ------------------------------------------------------------------------------
+# read_dataset_labels
+# Needs DataReader + helper for parse_label()
+# ------------------------------------------------------------------------------
+$(OBJ_DIR)/read_dataset_labels.o: $(SRC_DIR)/read_dataset_labels.cpp $(SRC_DIR)/DataReader.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
-# cleanall:
-# 	$(info ==> CLEANALL)
-# 	@rm -rf $(BUILD_DIR)
+$(BIN_DIR)/read_dataset_labels: $(OBJ_DIR)/read_dataset_labels.o $(DATAREADER_OBJ) $(HELPER_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "[Linked]   $@"
 
+# ------------------------------------------------------------------------------
+# mnist (main classifier)
+# Needs everything: NeuralNet, DataReader, mnist, helper
+# ------------------------------------------------------------------------------
+$(OBJ_DIR)/main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/NeuralNet.h $(SRC_DIR)/mnist.h $(SRC_DIR)/DataReader.h
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "[Compiled] $<"
 
+$(BIN_DIR)/mnist: $(OBJ_DIR)/main.o $(NEURALNET_OBJ) $(MNIST_OBJ) $(DATAREADER_OBJ) $(HELPER_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "[Linked]   $@"
 
-.PHONY: all perf clean cleanall
+# ------------------------------------------------------------------------------
+# Clean build artifacts
+# ------------------------------------------------------------------------------
+clean:
+	@rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@echo "[Cleaned]  obj/ and bin/ removed."

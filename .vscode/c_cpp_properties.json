@@ -9,7 +9,7 @@
       "includePath": [
         "${workspaceFolder}/src",
         "${workspaceFolder}/**",
-        "${workspaceFolder}/../../packages/eigen"
+        "${workspaceFolder}/../../packages/eigen-3.4.0/"
       ],
       "cppStandard": "c++17",
       "intelliSenseMode": "linux-gcc-x64"

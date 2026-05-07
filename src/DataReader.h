@@ -15,8 +15,10 @@ class DataReader {
     public:
     DataReader() = default;
     DataReader (std::map<std::string,std::string> config_data);
-    std::vector<int> parse_image(std::string filename);
-    std::vector<int> parse_label(std::string filename);
+    MatrixSingle* parse_image(std::string filename);
+    MatrixInteger* parse_label(std::string filename);
+    MatrixSingle& getImage(){ return image; }
+    MatrixInteger& getLabel(){ return label; }
     private:
     MatrixSingle image;
     MatrixInteger label;

@@ -1,4 +1,4 @@
-#include "helper.h"
+#include "Helper.h"
 
 std::map<std::string, std::string> Helper::parse(std::string config_file) {
     std::map<std::string, std::string> parse_data;

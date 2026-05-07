@@ -9,20 +9,21 @@ int main(int argc, const char *argv[]) {
     int index = atoi(argv[3]);
 
     DataReader parser;
-    MatrixSingle pixel_data = MatrixSingle::Zero(60000, 784);
+    // MatrixSingle pixel_data = MatrixSingle::Zero(60000, 784);
     MatrixSingle out_file = MatrixSingle::Zero(787, 1);
-    parser.parse_image(pixel_data, source);
+    MatrixSingle *parsed_image = parser.parse_image(source);
     std::ofstream file(output);
-    if (file.is_open()) {
-        file << 2 << std::endl;
-        file << 28 << std::endl;
-        file << 28 << std::endl;
-        for (int i = 0; i < 784; i++) {
-            file << pixel_data(index, i) << std::endl;
-        }
-        file.close();
-    } else {
-        std::cout << "Error opening file";
+    if (!file.is_open()) {
+        std::cout << "Error opening file" << std::endl;
+        return 1;
     }
+
+    file << 2 << std::endl;
+    file << 28 << std::endl;
+    file << 28 << std::endl;
+    for (int i = 0; i < 784; i++) {
+        file << parsed_image->operator()(index, i) << std::endl;
+    }
+    file.close();
     return 0;
 }
