@@ -5,6 +5,10 @@
 #include "DataReader.h"
 
 int main(int argc, const char *argv[]) {
+    if (argc < 4) {
+        std::cout << "Usage: " << argv[0] << " <source_file> <output_file> <index>" << std::endl;
+        return 1;
+    }
     std::string source = argv[1], output = argv[2];
     int index = atoi(argv[3]);
 

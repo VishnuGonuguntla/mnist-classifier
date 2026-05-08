@@ -19,6 +19,8 @@ MatrixSingle* DataReader::parse_image(std::string filename) {
         std::cout << "Image Not Found" << std::endl;
         return nullptr;
     }
+    auto start = std::chrono::steady_clock::now();
+    std::cout << "Parsing image data from: " << filename << "Time: ";
     int magic_number = 0;
     int number_of_images = 0;
     int number_of_rows = 0;
@@ -44,10 +46,11 @@ MatrixSingle* DataReader::parse_image(std::string filename) {
         }
     }
     file.close();
+    Helper::calculate_time(start);
     return &image;
 }
 
-MatrixInteger* DataReader::parse_label(std::string filename) {
+MatrixSingle* DataReader::parse_label(std::string filename) {
     std::ifstream file;
     file.open(filename, std::ios::binary);
     int magic_number = 0;
@@ -56,17 +59,20 @@ MatrixInteger* DataReader::parse_label(std::string filename) {
         std::cout << "Label Not open" << std::endl;
         return nullptr;
     }
+    auto start = std::chrono::steady_clock::now();
+    std::cout << "Parsing label data from: " << filename << "Time: ";
     file.read((char *)&magic_number, sizeof(magic_number));
     magic_number = bigToEndian(magic_number);
     file.read((char *)&number_of_images, sizeof(number_of_images));
     number_of_images = bigToEndian(number_of_images);
-    label = MatrixInteger::Zero(number_of_images, 10);
+    label = MatrixSingle::Zero(number_of_images, 10);
     for (int i = 0; i < number_of_images; i++) {
         unsigned char value = 0;
         file.read((char *)&value, sizeof(value));
         label(i, value) = 1;
     }
     file.close();
+    Helper::calculate_time(start);
     return &label;
 }
 int DataReader::bigToEndian(int i) {

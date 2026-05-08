@@ -12,7 +12,6 @@ std::map<std::string, std::string> Helper::parse(std::string config_file) {
         if (line.empty() || line[0] == '#')
             continue;
         size_t pos = line.find_first_of(" = ");
-        int i = 0;
         if (pos != std::string::npos) {
             std::string key = line.substr(0, pos);
             std::string value = line.substr(pos + 3);
@@ -20,4 +19,10 @@ std::map<std::string, std::string> Helper::parse(std::string config_file) {
         }
     }
     return parse_data;
+}
+
+void Helper::calculate_time(std::chrono::steady_clock::time_point start) {
+    auto end = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+              << " microseconds" << std::endl;
 }
