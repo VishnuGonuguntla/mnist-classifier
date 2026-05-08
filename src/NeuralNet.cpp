@@ -31,19 +31,16 @@ void NN::train(MatrixSingle& image, MatrixSingle& label) {
         MatrixSingle labels_shuffled = label(index, Eigen::all);
         MatrixSingle batch_images;
         MatrixSingle batch_labels;
-        // MatrixSingle label_float;
 
         // Then slice contiguous batches cleanly
         for (int b = 0; b < num_batches; b++) {
-            // std::cout << "Batch " << b + 1 << "/" << num_batches << std::endl;
             int start = b * batch_size;
             batch_images = images_shuffled(Eigen::seqN(start, batch_size), Eigen::all);
             batch_labels = labels_shuffled(Eigen::seqN(start, batch_size), Eigen::all);
-            // label_float = batch_labels.cast<float>();
             
             MatrixSingle batch_images_u(batch_size, num_features + 1);
             batch_images_u << batch_images, MatrixSingle::Ones(batch_size, 1);
-            MatrixSingle h2b, h1b, h1bu, output;
+            MatrixSingle h2b, h1b, h1bu, a2b, a2bu, output;
             
             h1 = batch_images_u * w1;
             a1 = h1.cwiseMax(0);
@@ -56,12 +53,14 @@ void NN::train(MatrixSingle& image, MatrixSingle& label) {
             output = -a2.array().log() * batch_labels.array();
             
             // Back:
-            h2b = a2.array() - batch_labels.array();
-            w2 -= eta * a1u.transpose() * h2b;
-            a1u = h2 * w2.transpose();
-            h1b = (a1u.array() > 0).cast<float>();
-            h1bu = h1b(all, seq(0, hidden_size - 1));
-            w1 -= eta * batch_images_u.transpose() * h1bu;
+            h2b = a2.array() - batch_labels.array();             // (batch, num_classes)
+            w2 -= eta * a1u.transpose() * h2b;                // (hidden+1, num_classes)
+            a2b = h2b * w2.transpose();             // (batch, hidden+1)
+            a2bu = a2b(all, seq(0, hidden_size - 1)); // (batch, hidden)
+            h1b = (h1.array() > 0).cast<float>();                // (batch, hidden)
+            h1bu = a2bu.array() * h1b.array();           // (batch, hidden)
+
+            w1 -= eta * batch_images_u.transpose() * h1bu;       // (features+1, hidden)
         }
     }
 
@@ -87,13 +86,19 @@ void NN::test(MatrixSingle& image, MatrixSingle& label) {
     h2 = a1u * w2;
     h2 = (h2.array() - h2.maxCoeff());
     h2 = h2.array().exp();
-    a2 = h2.array().rowwise() / h2.array().colwise().sum();
-    MatrixSingle output = -a2.array().log() * label.array();
+    a2 = h2.array().colwise() / h2.array().rowwise().sum();
+    // std::ofstream file;
+    // file.open("output.txt");
+    // if (file.is_open()) {
+    //     file << a2 << std::endl;
+    //     file.close();    } else {
+    //     std::cout << "Unable to open file";
+    // }
     Helper::calculate_time(start);
     Eigen::Index colIndex, colIndex2;
     int count = 0;
     for (int i = 0; i < test_count; i++) {
-        output.row(i).maxCoeff(&colIndex);
+        a2.row(i).maxCoeff(&colIndex);
         if (label(i, colIndex) == 1)
             count++;
         // label.row(i).maxCoeff(&colIndex2);
