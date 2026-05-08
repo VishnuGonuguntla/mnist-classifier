@@ -27,10 +27,14 @@ int main(int argc, char *argv[]) {
 
     parser.parse_image(config_data["rel_path_test_images"]);
     parser.parse_label(config_data["rel_path_test_labels"]);
-    // network.test();
+    MatrixSingle& test_images = parser.getImage();
+    MatrixInteger& test_labels = parser.getLabel();
+    std::cout << test_images.rows() << " " << test_images.cols() << std::endl;
+    std::cout << test_labels.rows() << " " << test_labels.cols() << std::endl;
+    network.test(test_images, test_labels);
     auto end = std::chrono::steady_clock::now();
     std::cout <<
-    std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()
+    std::chrono::duration_cast<std::chrono::seconds>(end-start).count()
     << std::endl;
         
     return 0;

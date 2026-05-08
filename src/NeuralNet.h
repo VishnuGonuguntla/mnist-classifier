@@ -21,17 +21,14 @@ class NN {
 public:
     NN (std::map<std::string, std::string> config, std::string initializer);
 
-    void train(MatrixSingle& tr_i, MatrixInteger& tr_l);
+    void train(MatrixSingle& image, MatrixInteger& label);
 
-    void test(MatrixSingle& te_i, MatrixInteger& te_l);
+    void test(MatrixSingle& image, MatrixInteger& label);
 
 private:
     void rng_initialization(MatrixSingle &matrix, std::string type);
 
     void shuffle_data(Eigen::VectorXi& index) ;
-
-    void forward(MatrixSingle& image, MatrixInteger& label, Eigen::VectorXi& index);
-    // void backward();
     
     int train_count;
     int test_count;
@@ -43,9 +40,5 @@ private:
     float eta;
     std::string initializer;
     MatrixSingle w1, w2;
-    MatrixSingle tr_i, te_i;
-    MatrixInteger tr_l, te_l;
-    
-    MatrixSingle s_i, a1, a2, h1, h2;
 
 };
