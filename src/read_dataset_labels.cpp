@@ -18,7 +18,7 @@ int main(int argc, const char *argv[]) {
     DataReader parser;
     // MatrixInteger label_data(60000, 10);
 
-    MatrixSingle *parsed_label = parser.parse_label(source);
+    parser.parse_label(source);
     std::ofstream file2(output);
     if (!file2.is_open()) {
         std::cout << "Unable to open file" << std::endl;
@@ -28,7 +28,7 @@ int main(int argc, const char *argv[]) {
     file2 << 1 << std::endl;
     file2 << 10 << std::endl;
     for (int i = 0; i < 10; i++) {
-        file2 << (*parsed_label)(index, i) << std::endl;
+        file2 << (parser.getLabel())(index, i) << std::endl;
     }
     file2.close();
     

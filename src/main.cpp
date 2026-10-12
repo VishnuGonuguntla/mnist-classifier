@@ -23,14 +23,14 @@ int main(int argc, char *argv[]) {
 
     parser.parse_image(config_data["rel_path_train_images"]);
     parser.parse_label(config_data["rel_path_train_labels"]);
-    MatrixSingle& train_images = parser.getImage();
-    MatrixSingle& train_labels = parser.getLabel();
+    const MatrixSingle& train_images = parser.getImage();
+    const MatrixSingle& train_labels = parser.getLabel();
     network.train(train_images, train_labels);
 
     parser.parse_image(config_data["rel_path_test_images"]);
     parser.parse_label(config_data["rel_path_test_labels"]);
-    MatrixSingle& test_images = parser.getImage();
-    MatrixSingle& test_labels = parser.getLabel();
+    const MatrixSingle& test_images = parser.getImage();
+    const MatrixSingle& test_labels = parser.getLabel();
     network.test(test_images, test_labels);
             
     return 0;

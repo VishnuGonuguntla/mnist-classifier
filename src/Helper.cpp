@@ -5,7 +5,7 @@ std::map<std::string, std::string> Helper::parse(std::string config_file) {
     std::ifstream file(config_file);
     std::string line;
     if (!file.is_open()) {
-        std::cout << "Error opening file " << config_file << std::endl;
+        std::cerr << "Error opening file " << config_file << std::endl;
         return parse_data;
     }
     while (getline(file, line)) {

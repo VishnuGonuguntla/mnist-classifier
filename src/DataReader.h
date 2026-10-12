@@ -1,30 +1,28 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <chrono>
-#include <vector>
 #include <map>
+#include <fstream>
+
 
 #include <Eigen/Dense>
 #include "Helper.h"
 
-#define MatrixSingle Eigen::MatrixXf
-#define MatrixInteger Eigen::MatrixXi
+using MatrixSingle = Eigen::MatrixXf;
+using MatrixInteger = Eigen::MatrixXi;
 
 class DataReader {
     public:
     DataReader() = default;
-    DataReader (std::map<std::string,std::string> config_data);
-    MatrixSingle* parse_image(std::string filename);
-    MatrixSingle* parse_label(std::string filename);
-    MatrixSingle& getImage(){ return image; }
-    MatrixSingle& getLabel(){ return label; }
+    explicit DataReader (const std::map<std::string,std::string>& config_data);
+    void parse_image(const std::string& filename);
+    void parse_label(const std::string& filename);
+    const MatrixSingle& getImage() const { return image; }
+    const MatrixSingle& getLabel() const { return label; }
     private:
+    static std::uint32_t bigEndianToHost(std::ifstream& f);
+
     MatrixSingle image;
     MatrixSingle label;
     std::string train_i, train_l, test_i, test_l;
-    int bigToEndian(int i);
-
 };

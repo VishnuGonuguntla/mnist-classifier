@@ -21,9 +21,9 @@ class NN {
 public:
     NN (std::map<std::string, std::string> config, std::string initializer);
 
-    void train(MatrixSingle& image, MatrixSingle& label);
+    void train(const MatrixSingle& image,const  MatrixSingle& label);
 
-    void test(MatrixSingle& image, MatrixSingle& label);
+    void test(const MatrixSingle& image,const MatrixSingle& label);
 
 private:
     void rng_initialization(MatrixSingle &matrix, std::string type);
@@ -33,10 +33,10 @@ private:
     int num_epochs;
     int batch_size;
     int hidden_size;
-    int train_count;
-    int test_count;
-    int num_features;
-    int num_classes;
+    long train_count;
+    long test_count;
+    long num_features;
+    long num_classes;
     float eta;
     std::string initializer;
     MatrixSingle w1, w2;

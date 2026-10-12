@@ -9,9 +9,9 @@ NN::NN(std::map<std::string, std::string> config, std::string initialize) {
 }
 
 
-void NN::train(MatrixSingle& image, MatrixSingle& label) {
+void NN::train(const MatrixSingle& image,const MatrixSingle& label) {
     std::cout << "training Time: ";
-    auto start = std::chrono::steady_clock::now();
+    auto start_time = std::chrono::steady_clock::now();
     train_count = image.rows();
     num_features = image.cols();
     num_classes = label.cols();
@@ -23,8 +23,8 @@ void NN::train(MatrixSingle& image, MatrixSingle& label) {
     Eigen::VectorXi index = Eigen::VectorXi::LinSpaced(train_count, 0, train_count - 1);
     for(int epoch = 0; epoch < num_epochs; epoch++) {
         shuffle_data(index);
-        int rows = image.rows();
-        int num_batches = rows / batch_size;
+        long rows = image.rows();
+        long num_batches = rows / batch_size;
         MatrixSingle h1, a1, a2, h2;
 
         MatrixSingle  images_shuffled = image(index, Eigen::all);
@@ -64,13 +64,13 @@ void NN::train(MatrixSingle& image, MatrixSingle& label) {
         }
     }
 
-    Helper::calculate_time(start);
+    Helper::calculate_time(start_time);
     
 }
-void NN::test(MatrixSingle& image, MatrixSingle& label) {
+void NN::test(const MatrixSingle& image,const MatrixSingle& label) {
     auto start = std::chrono::steady_clock::now();
     std::cout << "testing time: ";
-    int test_count = image.rows();
+    test_count = image.rows();
 
     MatrixSingle h1, a1, a2, h2;
     // MatrixSingle label_float = label.cast<float>();
@@ -95,7 +95,7 @@ void NN::test(MatrixSingle& image, MatrixSingle& label) {
     //     std::cout << "Unable to open file";
     // }
     Helper::calculate_time(start);
-    Eigen::Index colIndex, colIndex2;
+    Eigen::Index colIndex;
     int count = 0;
     for (int i = 0; i < test_count; i++) {
         a2.row(i).maxCoeff(&colIndex);
@@ -117,10 +117,10 @@ void NN::shuffle_data(Eigen::VectorXi& array) {
 void NN::rng_initialization(
     MatrixSingle &matrix, std::string type) { // Initialization: Generates the Initial values for the
                         // trainable parameters. Mersenne Twister Engine.
-    int rows = matrix.rows() - 1;
+    long rows = matrix.rows() - 1;
     std::random_device rd;
     std::mt19937 gen(rd());
-    double stddev;
+    double stddev{};
     if (type == "he") {
         stddev = sqrt(2.0 / rows);
     } else if (type == "gloriot") {

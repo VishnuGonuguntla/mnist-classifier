@@ -15,7 +15,7 @@ int main(int argc, const char *argv[]) {
     DataReader parser;
     // MatrixSingle pixel_data = MatrixSingle::Zero(60000, 784);
     MatrixSingle out_file = MatrixSingle::Zero(787, 1);
-    MatrixSingle *parsed_image = parser.parse_image(source);
+    parser.parse_image(source);
     std::ofstream file(output);
     if (!file.is_open()) {
         std::cout << "Error opening file" << std::endl;
@@ -26,7 +26,7 @@ int main(int argc, const char *argv[]) {
     file << 28 << std::endl;
     file << 28 << std::endl;
     for (int i = 0; i < 784; i++) {
-        file << parsed_image->operator()(index, i) << std::endl;
+        file << parser.getImage().operator()(index, i) << std::endl;
     }
     file.close();
     return 0;
